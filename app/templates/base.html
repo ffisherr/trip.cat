@@ -30,8 +30,8 @@
 			    <li><a href="#">События</a></li>
 				<li><a href="#">Выход</a></li>
 				{% else %}
-			    <li><a href="#">Вход</a></li>
-				<li><a href="#">Регистрация</a></li>
+			    <li><a href="login">Вход</a></li>
+				<li><a href="registration">Регистрация</a></li>
 				{%endif%}				
 			</ul>
 		</div>
@@ -48,12 +48,14 @@
     </div>
     {% endfor %}
 
-    {% block page_content %}{% endblock %}
+    {% block page_content %}
+        <h1>Home page</h1>
+    {% endblock %}
 </div>
 {% endblock %}
 
 {% block scripts %}
-	{{super()}}
-	{{moment.include_moment()}}
-	{{moment.lang('ru')}}
+{#	{{super()}}#}
+{#	{{moment.include_moment()}}#}
+{#	{{moment.lang('ru')}}#}
 {% endblock  %}
