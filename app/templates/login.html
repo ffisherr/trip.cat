@@ -1,5 +1,16 @@
 {% extends 'base.html' %}
 
 {% block page_content %}
+<div class="my-flex-column">
     <h2>Login page</h2>
+
+    <input type="email" id="email" placeholder="Введите e-mail" class="my-margin">
+    <input type="password" id="pass" placeholder="Введите пароль" class="my-margin">
+
+    <form action="/" target="_self" class="my-button">
+        <button type="submit">Вход</button>
+    </form>
+
+</div>
+
 {% endblock %}
