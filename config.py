@@ -8,3 +8,4 @@ class Config(object):
 	SQLALCHEMY_MIGRATE_REPO        = os.path.join(basedir, 'db_repository')
 	SQLALCHEMY_COMMIT_ON_TEARDOWN  = True
 	SQLALCHEMY_TRACK_MODIFICATIONS = False
+	FLASK_ADMIN_SWATCH = 'cerulean'
