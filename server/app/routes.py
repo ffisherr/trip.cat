@@ -1,15 +1,20 @@
 from flask import render_template, session, g
 from flask import redirect, url_for, request
 from flask_login import login_user, logout_user, current_user, login_required
+from flask_cors import CORS
 
 from app import app, db, loginManager, oid
 from app.models import User
 from app.forms import LoginForm, RegisterForm
 
 
+cors = CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+
 @app.route('/')
 def index():
-    return render_template('index.html')
+    msg = 'Hello from flask'
+    return msg
+    # return render_template('index.html')
 
 
 @app.route('/info')
