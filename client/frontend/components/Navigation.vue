@@ -1,34 +1,37 @@
 <template>
-
-  <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-    <a class="navbar-brand" href="/">Главная</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
-            aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarCollapse">
-      <ul class="navbar-nav mr-auto">
-        <li class="nav-item">
-          <nuxt-link to="/trips" class="nav-link">Путешествия</nuxt-link>
-        </li>
-        <li class="nav-item">
-          <nuxt-link to="/about" class="nav-link">О нас</nuxt-link>
-        </li>
-        <li class="nav-item">
-          <nuxt-link to="/blog" class="nav-link">Блог</nuxt-link>
-        </li>
-      </ul>
+  <div>
+    <h1>Menu</h1>
+    <div :class="$style.wrapper">
+      <div v-for="item in menu" :key="item.cSlug" :class="$style.block">
+        <nuxt-link :to="item.cSlug">
+          <p>{{item.cName}}</p>
+          <img :src="item.cImage">
+        </nuxt-link>
+      </div>
     </div>
-  </nav>
-
+  </div>
 </template>
 
 <script>
 export default {
-  name: "Navigation"
+  name: "Navigation",
+
+  props: {
+    menu: {
+      type: Array,
+      default: () => []
+    }
+  }
 }
 </script>
 
-<style scoped>
+<style lang="scss" module>
+.wrapper {
+  display: flex;
+}
 
+.block {
+  display: flex;
+  flex-direction: column;
+}
 </style>

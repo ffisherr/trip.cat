@@ -1,67 +1,218 @@
+const imageminMozjpeg = require('imagemin-mozjpeg')
+const ImageminPlugin = require('imagemin-webpack-plugin').default
+const isDev = process.env.NODE_ENV !== 'production'
 
-export default {
+
+module.exports = {
   mode: 'universal',
-  /*
-  ** Headers of the page
-  */
+  ...(!isDev && {
+    modern: 'client'
+  }),
+
   head: {
-    title: process.env.npm_package_name || '',
+    htmlAttrs: {
+      lang: 'ru'
+    },
+    title: 'Nuxt APP',
     meta: [
-      { charset: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'description', name: 'description', content: process.env.npm_package_description || '' }
+      { hid: 'description', name: 'description', content: 'Интернет-магазин' }
     ],
     link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-      {rel: "stylesheet", href: "https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"},
-    ],
-    script: [
-      {src: "https://code.jquery.com/jquery-3.5.1.slim.min.js"},
-      {src: "https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"},
-      {src: "https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"},
+      { rel: 'shortcut icon', href: 'favicon.ico' }
     ]
   },
-  /*
-  ** Customize the progress-bar color
-  */
-  loading: { color: '#fff' },
-  /*
-  ** Global CSS
-  */
-  css: [
+  rootDir: __dirname,
+  serverMiddleware: [
   ],
-  /*
-  ** Plugins to load before mounting the App
-  */
+  router: {
+    prefetchLinks: true
+  },
+  loading: { color: '#ddd' },
+  css: [
+    'normalize.css',
+    './assets/scss/global-styles.scss'
+  ],
   plugins: [
   ],
-  /*
-  ** Nuxt.js dev-modules
-  */
-  buildModules: [
-  ],
-  /*
-  ** Nuxt.js modules
-  */
   modules: [
     // Doc: https://axios.nuxtjs.org/usage
     '@nuxtjs/axios',
+    'nuxt-trailingslash-module',
+    'nuxt-webfontloader',
+    'cookie-universal-nuxt',
+    '@nuxtjs/style-resources'
   ],
+
+  webfontloader: {
+    events: false,
+    google: {
+      families: ['Montserrat:400,500,600:cyrillic&display=swap']
+    },
+    timeout: 5000
+  },
+  styleResources: {
+    // your settings here
+    // scss: ['./assets/scss/global-variables.scss'], // alternative: scss
+    less: [],
+    stylus: []
+  },
   /*
   ** Axios module configuration
-  ** See https://axios.nuxtjs.org/options
   */
   axios: {
     baseURL: 'http://localhost:5000'
+    // See https://github.com/nuxt-community/axios-module#options
+  },
+  render: {
+    // http2: {
+    //     push: true,
+    //     pushAssets: (req, res, publicPath, preloadFiles) => preloadFiles
+    //     .map(f => `<${publicPath}${f.file}>; rel=preload; as=${f.asType}`)
+    //   },
+    // compressor: false,
+    resourceHints: false,
+    etag: false,
+    static: {
+      etag: false
+    }
   },
   /*
   ** Build configuration
   */
   build: {
-    /*
-    ** You can extend webpack config here
-    */
+    optimizeCss: false,
+    filenames: {
+      app: ({ isDev }) => isDev ? '[name].js' : 'js/[contenthash].js',
+      chunk: ({ isDev }) => isDev ? '[name].js' : 'js/[contenthash].js',
+      css: ({ isDev }) => isDev ? '[name].css' : 'css/[contenthash].css',
+      img: ({ isDev }) => isDev ? '[path][name].[ext]' : 'img/[contenthash:7].[ext]',
+      font: ({ isDev }) => isDev ? '[path][name].[ext]' : 'fonts/[contenthash:7].[ext]',
+      video: ({ isDev }) => isDev ? '[path][name].[ext]' : 'videos/[contenthash:7].[ext]'
+    },
+    ...(!isDev && {
+      html: {
+        minify: {
+          collapseBooleanAttributes: true,
+          decodeEntities: true,
+          minifyCSS: true,
+          minifyJS: true,
+          processConditionalComments: true,
+          removeEmptyAttributes: true,
+          removeRedundantAttributes: true,
+          trimCustomFragments: true,
+          useShortDoctype: true
+        }
+      }
+    }),
+    splitChunks: {
+      layouts: true,
+      pages: true,
+      commons: true
+    },
+    optimization: {
+      minimize: !isDev
+    },
+    ...(!isDev && {
+      extractCSS: {
+        ignoreOrder: true
+      }
+    }),
+    transpile: ['vue-lazy-hydration', 'intersection-observer'],
+    postcss: {
+      plugins: {
+        ...(!isDev && {
+          cssnano: {
+            preset: ['advanced', {
+              autoprefixer: false,
+              cssDeclarationSorter: false,
+              zindex: false,
+              discardComments: {
+                removeAll: true
+              }
+            }]
+          }
+        })
+      },
+      ...(!isDev && {
+        preset: {
+          browsers: 'cover 99.5%',
+          autoprefixer: true
+        }
+      }),
+
+      order: 'cssnanoLast'
+    },
     extend (config, ctx) {
+      const ORIGINAL_TEST = '/\\.(png|jpe?g|gif|svg|webp)$/i'
+      const vueSvgLoader = [
+        {
+          loader: 'vue-svg-loader',
+          options: {
+            svgo: false
+          }
+        }
+      ]
+      const imageMinPlugin = new ImageminPlugin({
+        pngquant: {
+          quality: '5-30',
+          speed: 7,
+          strip: true
+        },
+        jpegtran: {
+          progressive: true
+
+        },
+        gifsicle: {
+          interlaced: true
+        },
+        plugins: [
+          imageminMozjpeg({
+            quality: 70,
+            progressive: true
+          })
+
+        ]
+      })
+      if (!ctx.isDev) config.plugins.push(imageMinPlugin)
+
+      config.module.rules.forEach(rule => {
+        if (rule.test.toString() === ORIGINAL_TEST) {
+          rule.test = /\.(png|jpe?g|gif|webp)$/i
+          rule.use = [
+            {
+              loader: 'url-loader',
+              options: {
+                limit: 1000,
+                name: ctx.isDev ? '[path][name].[ext]' : 'img/[contenthash:7].[ext]'
+              }
+            }
+          ]
+        }
+      })
+      //  Create the custom SVG rule
+      const svgRule = {
+        test: /\.svg$/,
+        oneOf: [
+          {
+            resourceQuery: /inline/,
+            use: vueSvgLoader
+          },
+          {
+            resourceQuery: /data/,
+            loader: 'url-loader'
+          },
+          {
+            resourceQuery: /raw/,
+            loader: 'raw-loader'
+          },
+          {
+            loader: 'file-loader' // By default, always use file-loader
+          }
+        ]
+      }
+
+      config.module.rules.push(svgRule) // Actually add the rule
     }
   }
 }
+
